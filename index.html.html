@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Registro de Actividades — TEASCHILE</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#22223F">
+<style>
+  :root{
+    --navy:#22223F;
+    --navy-2:#2E2E52;
+    --red:#AB1B2E;
+    --red-dark:#8A1524;
+    --sand:#F3F1EA;
+    --paper:#FFFFFF;
+    --ink:#22223F;
+    --ink-soft:#5B5B72;
+    --line:#DDD9CC;
+    --ok:#2F6B3C;
+    --pend:#C97A1B;
+    --proc:#2A5F8A;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(34,34,63,0.10);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--sand);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    padding-bottom:96px;
+  }
+  header{
+    background:var(--navy);
+    color:#fff;
+    padding:18px 18px 22px;
+    position:sticky;
+    top:0;
+    z-index:20;
+    box-shadow:var(--shadow);
+  }
+  header .brand{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:10px;
+  }
+  header .brand-mark{
+    font-weight:800;
+    letter-spacing:0.04em;
+    font-size:15px;
+    color:var(--red);
+  }
+  header h1{
+    margin:6px 0 2px;
+    font-size:21px;
+    font-weight:750;
+    line-height:1.25;
+  }
+  header p{
+    margin:0;
+    font-size:13px;
+    color:#C9C9DA;
+  }
+
+  .tabbar{
+    display:flex;
+    background:var(--navy-2);
+    position:sticky;
+    top:96px;
+    z-index:19;
+  }
+  .tabbar button{
+    flex:1;
+    padding:12px 6px;
+    background:transparent;
+    border:none;
+    color:#B9B9D0;
+    font-size:14px;
+    font-weight:650;
+    border-bottom:3px solid transparent;
+  }
+  .tabbar button.active{
+    color:#fff;
+    border-bottom-color:var(--red);
+  }
+
+  main{padding:16px;max-width:640px;margin:0 auto;}
+  section{display:none;}
+  section.active{display:block;}
+
+  .card{
+    background:var(--paper);
+    border-radius:var(--radius);
+    padding:16px;
+    box-shadow:var(--shadow);
+    margin-bottom:14px;
+  }
+  .card h2{
+    font-size:14px;
+    text-transform:none;
+    margin:0 0 12px;
+    color:var(--ink-soft);
+    font-weight:650;
+  }
+
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:650;
+    color:var(--ink-soft);
+    margin:14px 0 6px;
+  }
+  label.required::after{
+    content:" *";
+    color:var(--red);
+  }
+  label:first-of-type{margin-top:0;}
+
+  input[type=date],
+  input[type=text],
+  select,
+  textarea{
+    width:100%;
+    font-size:16px;
+    padding:13px 12px;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    background:#FCFBF8;
+    color:var(--ink);
+    font-family:inherit;
+  }
+  select{appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="9"><path d="M1 1l6 6 6-6" stroke="%235B5B72" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
+  textarea{resize:vertical;min-height:64px;}
+  input:focus,select:focus,textarea:focus{
+    outline:2px solid var(--red);
+    outline-offset:1px;
+    border-color:var(--red);
+  }
+
+  .seg{
+    display:flex;
+    gap:8px;
+    margin-top:6px;
+  }
+  .seg button{
+    flex:1;
+    padding:12px 6px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:#FCFBF8;
+    font-size:14px;
+    font-weight:650;
+    color:var(--ink-soft);
+  }
+  .seg button.sel{
+    background:var(--navy);
+    border-color:var(--navy);
+    color:#fff;
+  }
+  .seg button.sel[data-v="OPERATIVO"]{background:var(--ok);border-color:var(--ok);}
+  .seg button.sel[data-v="FUERA DE SERVCICIO"]{background:var(--red);border-color:var(--red);}
+  .seg button.sel[data-v="EN EL POZO"]{background:var(--pend);border-color:var(--pend);}
+  .seg button.sel[data-v="NO APLICA"]{background:var(--ink-soft);border-color:var(--ink-soft);}
+
+  .combo{position:relative;}
+  .combo-list{
+    display:none;
+    position:absolute;
+    left:0;right:0;top:calc(100% + 4px);
+    max-height:220px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    background:#fff;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 6px 18px rgba(34,34,63,0.16);
+    z-index:40;
+  }
+  .combo-list.open{display:block;}
+  .combo-item{
+    padding:12px 14px;
+    font-size:14.5px;
+    color:var(--ink);
+    border-bottom:1px solid #EFECE3;
+  }
+  .combo-item:last-child{border-bottom:none;}
+  .combo-item:active,.combo-item.hl{background:#F3F1EA;}
+  .combo-empty{padding:12px 14px;font-size:13px;color:var(--ink-soft);}
+
+  .row2{display:flex;gap:10px;}
+  .row2>div{flex:1;}
+
+  .save-bar{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    background:linear-gradient(180deg, rgba(243,241,234,0), var(--sand) 22%);
+    padding:14px 16px 18px;
+    z-index:30;
+  }
+  .save-bar .inner{max-width:640px;margin:0 auto;display:flex;gap:10px;}
+  .btn{
+    display:block;
+    text-align:center;
+    padding:15px 16px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:700;
+    border:none;
+    flex:1;
+  }
+  .btn-primary{background:var(--red);color:#fff;box-shadow:0 4px 14px rgba(171,27,46,0.35);}
+  .btn-primary:active{background:var(--red-dark);}
+  .btn-ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line);flex:0 0 auto;padding-left:18px;padding-right:18px;}
+
+  .entry{
+    border:1px solid var(--line);
+    border-left:5px solid var(--navy);
+    border-radius:10px;
+    padding:12px;
+    margin-bottom:10px;
+    background:#FCFBF8;
+  }
+  .entry.op-OPERATIVO{border-left-color:var(--ok);}
+  .entry.op-FUERA_DE_SERVCICIO{border-left-color:var(--red);}
+  .entry.op-EN_EL_POZO{border-left-color:var(--pend);}
+  .entry .top{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    align-items:flex-start;
+  }
+  .entry .eq{font-weight:750;font-size:15px;}
+  .entry .act{font-size:14px;color:var(--ink-soft);margin-top:2px;}
+  .entry .meta{font-size:12px;color:var(--ink-soft);margin-top:8px;display:flex;flex-wrap:wrap;gap:6px 10px;}
+  .pill{
+    display:inline-block;
+    padding:2px 9px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+    background:#EDEBE1;
+    color:var(--ink-soft);
+  }
+  .pill.status-CERRADO{background:#E4EFE6;color:var(--ok);}
+  .pill.status-PENDIENTE{background:#F7E9D8;color:var(--pend);}
+  .pill.status-EN_PROCESO{background:#DFEAF3;color:var(--proc);}
+  .entry .comments{font-size:13px;margin-top:8px;color:var(--ink);}
+  .entry .recom{font-size:12.5px;margin-top:6px;color:var(--red);font-weight:650;}
+  .entry .actions{display:flex;gap:8px;margin-top:10px;}
+  .entry .actions button{
+    flex:1;
+    padding:8px;
+    font-size:12.5px;
+    font-weight:650;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--ink-soft);
+  }
+  .entry .actions button.del{color:var(--red);border-color:#EAC9CD;}
+
+  .empty{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--ink-soft);
+  }
+  .empty .big{font-size:34px;margin-bottom:8px;}
+
+  .datefilter{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .datefilter input[type=date]{width:auto;flex:1;margin-right:10px;}
+  .count-chip{
+    background:var(--navy);
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+    padding:6px 12px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+
+  .export-row{display:flex;gap:10px;margin-top:4px;}
+  .export-row .btn{padding:14px 10px;font-size:14px;}
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:100px;
+    transform:translateX(-50%);
+    background:var(--navy);
+    color:#fff;
+    padding:11px 18px;
+    border-radius:999px;
+    font-size:13.5px;
+    font-weight:650;
+    box-shadow:var(--shadow);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    z-index:50;
+    max-width:88%;
+    text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:8px;line-height:1.5;}
+
+  ::selection{background:#F2C9CF;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="brand-mark">TEASCHILE</span>
+    <span style="font-size:12px;color:#C9C9DA;" id="todayLabel"></span>
+  </div>
+  <h1>Registro de Actividades</h1>
+  <p>Actividades Período — Minera Escondida · <span id="connStatus" style="color:#8FE3A6;">● En línea, compartido con el equipo</span>
+    <button id="btnConfig" style="background:none;border:none;color:#C9C9DA;font-size:12px;text-decoration:underline;padding:0;margin-left:8px;">config.</button>
+  </p>
+</header>
+
+<div id="configOverlay" style="display:none;position:fixed;inset:0;background:rgba(34,34,63,0.55);z-index:100;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:14px;padding:20px;max-width:420px;width:100%;">
+    <h2 style="font-size:15px;margin:0 0 4px;color:#22223F;">Dirección de la planilla compartida</h2>
+    <p style="font-size:12.5px;color:#5B5B72;margin:0 0 12px;line-height:1.5;">Pega aquí la URL de la aplicación web que publicaste en Google Apps Script (termina en <b>/exec</b>). Se guarda solo en este dispositivo.</p>
+    <input type="text" id="cfgUrl" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;font-size:14px;padding:12px;border:1.5px solid #DDD9CC;border-radius:10px;margin-bottom:12px;">
+    <div style="display:flex;gap:10px;">
+      <button id="cfgSave" style="flex:1;padding:13px;border-radius:10px;border:none;background:#AB1B2E;color:#fff;font-weight:700;">Guardar</button>
+      <button id="cfgCancel" style="padding:13px 16px;border-radius:10px;border:1.5px solid #DDD9CC;background:#fff;color:#22223F;font-weight:650;">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="tabbar">
+  <button class="tab-btn active" data-tab="nuevo">Nuevo registro</button>
+  <button class="tab-btn" data-tab="lista">Registros</button>
+  <button class="tab-btn" data-tab="exportar">Exportar</button>
+</div>
+
+<main>
+
+  <!-- NUEVO -->
+  <section id="tab-nuevo" class="active">
+    <div class="card">
+      <h2>Datos del movimiento</h2>
+
+      <div class="row2">
+        <div>
+          <label class="required">Fecha</label>
+          <input type="date" id="f_fecha">
+        </div>
+        <div>
+          <label>Mes</label>
+          <input type="text" id="f_mes" readonly style="background:#EFEDE4;color:var(--ink-soft);">
+        </div>
+      </div>
+
+      <label class="required">Asesor</label>
+      <select id="f_asesor"></select>
+
+      <label class="required">Equipo</label>
+      <div class="combo">
+        <input type="text" id="f_equipo" placeholder="Escribe o toca para elegir un equipo" autocomplete="off">
+        <div class="combo-list" id="cl_equipo"></div>
+      </div>
+
+      <label class="required">Actividad</label>
+      <div class="combo">
+        <input type="text" id="f_actividad" placeholder="Escribe o toca para elegir una actividad" autocomplete="off">
+        <div class="combo-list" id="cl_actividad"></div>
+      </div>
+
+      <label>Descripción (movimiento)</label>
+      <div class="seg" id="seg_desc">
+        <button type="button" data-v="ENTRA">ENTRA</button>
+        <button type="button" data-v="SALE">SALE</button>
+        <button type="button" data-v="NO APLICA">NO APLICA</button>
+      </div>
+
+      <label>Operativo</label>
+      <div class="seg" id="seg_op">
+        <button type="button" data-v="OPERATIVO">OPERATIVO</button>
+        <button type="button" data-v="FUERA DE SERVCICIO">FUERA SERV.</button>
+        <button type="button" data-v="EN EL POZO">EN EL POZO</button>
+        <button type="button" data-v="NO APLICA">NO APLICA</button>
+      </div>
+
+      <label>N° Serie / referencia</label>
+      <input type="text" id="f_serie" placeholder="N° de serie, medida, cantidad...">
+
+      <label>Status actividad</label>
+      <select id="f_status"></select>
+
+      <label>Comentarios</label>
+      <textarea id="f_comentarios" placeholder="Detalle de lo realizado..."></textarea>
+
+      <label>Recomendaciones</label>
+      <div class="combo">
+        <input type="text" id="f_recom" placeholder="Opcional" autocomplete="off">
+        <div class="combo-list" id="cl_recom"></div>
+      </div>
+
+      <p class="hint">Los campos con * son obligatorios. Fecha, asesor y equipo se mantienen después de guardar para agilizar el próximo registro del mismo turno.</p>
+    </div>
+  </section>
+
+  <!-- LISTA -->
+  <section id="tab-lista">
+    <div class="card">
+      <div class="datefilter">
+        <input type="date" id="filtroFecha">
+        <span class="count-chip" id="countChip">0</span>
+      </div>
+      <div id="listaEntries"></div>
+    </div>
+  </section>
+
+  <!-- EXPORTAR -->
+  <section id="tab-exportar">
+    <div class="card">
+      <h2>Rango a exportar</h2>
+      <div class="row2">
+        <div>
+          <label>Desde</label>
+          <input type="date" id="exp_desde">
+        </div>
+        <div>
+          <label>Hasta</label>
+          <input type="date" id="exp_hasta">
+        </div>
+      </div>
+      <p class="hint" id="exp_count">0 registros en el rango.</p>
+      <button class="btn btn-primary" id="btnWhatsapp" style="width:100%;background:#25D366;box-shadow:0 4px 14px rgba(37,211,102,0.35);margin-bottom:10px;">Enviar Excel por WhatsApp</button>
+      <div class="export-row">
+        <button class="btn btn-ghost" id="btnCopiar">Copiar tabla</button>
+        <button class="btn btn-ghost" id="btnCSV">Descargar CSV</button>
+      </div>
+      <p class="hint">"Enviar Excel por WhatsApp" genera un archivo .xlsx con las columnas en el mismo orden que la hoja <b>ACTIVIDADES PERIODO</b> y abre el panel para compartir; elige WhatsApp y el contacto o grupo. "Copiar tabla" copia las filas para pegarlas directo en el libro maestro. "Descargar CSV" guarda un respaldo.</p>
+    </div>
+    <div class="card">
+      <h2>Planilla compartida</h2>
+      <p class="hint">Todos los registros del equipo quedan guardados en una sola Google Sheet, en tiempo real. Puedes abrirla y editarla completa, o descargarla como Excel desde ahí.</p>
+      <button class="btn btn-ghost" id="btnAbrirSheet" style="width:100%;">Abrir planilla completa en Google Sheets</button>
+    </div>
+  </section>
+
+</main>
+
+<div class="save-bar" id="saveBar">
+  <div class="inner">
+    <button class="btn btn-ghost" id="btnLimpiar">Limpiar</button>
+    <button class="btn btn-primary" id="btnGuardar">Guardar registro</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== Datos de listas (extraídos del libro original) ===================== */
+const LISTAS = {
+  ASESOR: ["EDUARDO SEPÚLVEDA","ANDRES ALFARO","JUAN OLMOS"],
+  STATUS: ["CERRADO","PENDIENTE","EN PROCESO"],
+  ACTIVIDAD: ["CAMBIO TRICONO","TRICONO PLATAFORMA","CAMBIO ANILLO GUÍA","CAMBIO BARRA PATERA","CAMBIO BARRA SEGUIDORA","CAMBIO BARRA TERCERA","CAMBIO AMORTIGUADOR","CAMBIO ADAPTADOR DE TRICONO","CAMBIO ADAPTADOR SUPERIOR","LINEALIDAD DEL CABEZAL","DESLIZADERAS CARRO AVAN","PIOLAS PULL DOWN","PIOLAS PULL BACK","LAVADO DE TRICONO DULL GRADE","NOZZLES MEDIDA","BAJA PRESIÓN DE AIRE DISPONIBLE","BAJA PRESIÓN DE AIRE EN TRICONO < A 55 PSI OPEN BEARING","FUGAS DE AIRE EQUIPO","FUGAS DE AIRE ENTRE HILOS","CENTRALIZADOR","SISTEMA DE ROTACIÓN","BARRA CAIDA DE CARRUSEL","RPM MOTOTR","GRASA PARA HILOS","APOYO TRABAJO FUERA CONTRATO","SISTEMA DE POSICIONAMIENTO","GATOS DE APOYO","CAMBIO CASEROLA","DESCARGA DATOS RCS","DESGASTE DECK HOLE","CAMBIO MARTILLO DTH","CAMBIO BIT DTH","CAMBIO BARRAS DTH","ADAPTADOR DE HILOS","CONTACTO PRIMARIO CRÍTICO","FUGA AMORTIGUADOR","FUGAS DE AIRE","FUGAS DE ACEITE","ALINEAMIENTO RHS","ALINEAMIENTO MORDAZAS","ALINEAMIENTO CABEZAL","DESGASTE DESLIZADERAS","TEFLONES DE DESGASTE","INCLINOMETRO CABINA","PRESIÓN DE AIRE DISPONIBLE","PRESIÓN DE PERCUSION","CHEQUO PANDEO BARRAS","VELOCIDAD DE EVACUACON","FUERZA DE AVANCE BAR","ROTACIÓN UR BAR","ROTACION UR RPM","SISTEMA ANTIATASCO","GUÍAS DE BARRA","GUÍAS DE MARTILLO","DCT - DCS","PROFUNDIMETRO","GRANULOMETRIA X CICLON","SECUENCIA LIMP. FILTROS DCT","NIVEL FREATICO","DEFICIENCIA NEUMÁTICA","LIMPIEZA DE PATIO","MEDICIÓN DESGASTE COLUMNA","ROTACIÓN BARRAS","CAMBIO BARRA PATERA Y SEGUIDORA","RELLENO DE ACEITE","PRUEBAS DE AIRE","PRUEBAS DE PESO","PRUEBAS DATALOGGER","MEDICIÓN DECK HOLE","MEDICIÓN DESGASTE DE HILOS","DESARME COLUMNA","REPARACIÓN DECK HOLE","TRASLADO DE ACERO A EQUIPO ROTARY","TRASLADO DE ACERO A EQUIPO DTH","AJUSTE DE PARAMETROS","CAMBIO DE DIÁMETRO","REPORT","ANÁLISIS TRICONO EN EQUIPO","PLETINAS AMORTIGUADOR","RETIRO ACEROS EN DESUSO","HOUSEKEEPING","TRASLADO ACCESORIO DE PERFORACIÓN","BAJA VELOCIDAD DE EVACUACIÓN Y BAJO CAUDAL","PARÁMETROS AUTONOMIA","BAJO CAUDAL","BAJA VELOCIDAD DE EVACUACIÓN","VERIFICAR COMPORTAMIENTO NEUMÁTICO DEL COMPRESOR","NO PERFORAR EN DIÁMETRO 12 1/4\"","CALIBRACIÓN WOB","DESGASTE ANILLO GUÍA","DESCARGA ACEROS NUEVOS","DESCARGA ACEROS DESUSO","CAMBIO BARRAS","OTROS MOVIMIENTOS","REPOSICIÓN DE BIT DTH","REPOSICIÓN TRICONO","ACTIVIDADES DE SEGURIDAD","OTRAS ACTIVIDADES","CARGUIO ACEROS NUEVOS","CARGUIO ACEROS EN DESUSO","SISTEMA HOLE CONTROL","CHEQUEO EQUIPO","ANÁLISIS TRICONO"],
+  EQUIPO: ["49HR N°27","49HR N°28","49HR N°31","49HR N°32","PV351 N°33","PV351 N°34","PV351 N°35","PV351 N°36","PV351 N°50","PV351 N°51","PV351 N°52","PV351 N°53","PV351 N°56","PV271 N°37","PV271 N°38","PV271 N°60","PV351 N°57","PV 275 N°30","PATIO","DM45 N°25","SMART N°39","PATIO SITRANS","SMART N°41","SMART N°42","SMART N°43","SMART N°44","SMART N°45","SMART N°46","SMART N°47","SMART N°48","PV351 N°55","PV271 N°62","AUTONOMÍA","OTROS"],
+  MESES: ["ENERO","FEBRERO","MARZO","ABRIL","MAYO","JUNIO","JULIO","AGOSTO","SEPTIEMBRE","OCTUBRE","NOVIEMBRE","DICIEMBRE"],
+  RECOM: ["DETENCIÓN INMEDIATA","PROGRAMAR REPARACIÓN","PROGRAMAR MANTENCIÓN","PROGRAMAR CALIBRACIÓN","TRABAJAR CON PRECAUCIÓN","NO USAR TRICONO DE 12 1/4\"","NO USAR TRICONO DE 10 5/8\"","INSTRUIR A OPERADOR"]
+};
+
+/* ===================== Puente con el backend (fetch puro, sin google.script.run) ===================== */
+const CFG_KEY = "teaschile_api_url";
+
+function getApiUrl(){
+  return (localStorage.getItem(CFG_KEY) || "").trim();
+}
+function setApiUrl(url){
+  localStorage.setItem(CFG_KEY, url.trim());
+}
+
+function openConfig(){
+  document.getElementById("cfgUrl").value = getApiUrl();
+  document.getElementById("configOverlay").style.display = "flex";
+}
+function closeConfig(){
+  document.getElementById("configOverlay").style.display = "none";
+}
+document.getElementById("btnConfig").addEventListener("click", openConfig);
+document.getElementById("cfgCancel").addEventListener("click", closeConfig);
+document.getElementById("cfgSave").addEventListener("click", ()=>{
+  const url = document.getElementById("cfgUrl").value.trim();
+  if(!url){ showToast("Pega la URL de la app publicada"); return; }
+  setApiUrl(url);
+  closeConfig();
+  showToast("Guardado. Cargando datos...");
+  renderLista();
+  renderExportCount();
+});
+
+async function apiGet(action, params={}){
+  const base = getApiUrl();
+  if(!base) throw new Error("Falta configurar la URL de la planilla (toca \"config.\" arriba)");
+  const url = new URL(base);
+  url.searchParams.set("action", action);
+  Object.entries(params).forEach(([k,v])=> url.searchParams.set(k, v==null?"":v));
+  const res = await fetch(url.toString(), { method:"GET" });
+  const json = await res.json();
+  if(!json.ok) throw new Error(json.error || "Error del servidor");
+  return json.data;
+}
+
+async function apiPost(action, payload){
+  const base = getApiUrl();
+  if(!base) throw new Error("Falta configurar la URL de la planilla (toca \"config.\" arriba)");
+  const res = await fetch(base, {
+    method:"POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita preflight CORS
+    body: JSON.stringify({ action, payload })
+  });
+  const json = await res.json();
+  if(!json.ok) throw new Error(json.error || "Error del servidor");
+  return json.data;
+}
+
+/* Compatibilidad: mismo nombre "gs" usado en el resto del código, ahora sobre fetch */
+function gs(fnName, ...args){
+  if(fnName === "guardarRegistro") return apiPost("guardar", args[0]);
+  if(fnName === "listarRegistros") return apiGet("listar", { fecha: args[0] || "" });
+  if(fnName === "eliminarRegistro") return apiPost("eliminar", { rowIndex: args[0] });
+  if(fnName === "getSheetUrl") return apiGet("sheetUrl");
+  return Promise.reject(new Error("Función no soportada: " + fnName));
+}
+
+/* ===================== Utilidades ===================== */
+function pad(n){return n.toString().padStart(2,"0");}
+function todayISO(){
+  const d = new Date();
+  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+}
+function isoToMesEs(iso){
+  if(!iso) return "";
+  const [y,m,d] = iso.split("-").map(Number);
+  return LISTAS.MESES[m-1] || "";
+}
+function isoToDisplay(iso){
+  if(!iso) return "";
+  const [y,m,d] = iso.split("-");
+  return `${d}-${m}-${y}`;
+}
+function slug(s){return (s||"").toString().replace(/\s+/g,"_").replace(/[^\w]/g,"");}
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(showToast._tm);
+  showToast._tm = setTimeout(()=>t.classList.remove("show"), 1800);
+}
+
+/* ===================== Poblar selects ===================== */
+function fillSelect(el, arr, placeholder){
+  el.innerHTML = "";
+  if(placeholder){
+    const o = document.createElement("option");
+    o.value=""; o.textContent=placeholder;
+    el.appendChild(o);
+  }
+  arr.forEach(v=>{
+    const o = document.createElement("option");
+    o.value=v; o.textContent=v;
+    el.appendChild(o);
+  });
+}
+fillSelect(document.getElementById("f_asesor"), LISTAS.ASESOR, "Selecciona asesor");
+fillSelect(document.getElementById("f_status"), LISTAS.STATUS, "Selecciona status");
+
+/* Combobox propio: reemplaza <datalist>, que Safari/iOS no soporta bien */
+function makeCombo(inputEl, listEl, options){
+  function render(filterText){
+    const q = (filterText||"").trim().toLowerCase();
+    const items = q ? options.filter(o=>o.toLowerCase().includes(q)) : options;
+    if(items.length===0){
+      listEl.innerHTML = `<div class="combo-empty">Sin coincidencias — se guardará el texto escrito</div>`;
+    }else{
+      listEl.innerHTML = items.slice(0,60).map(o=>`<div class="combo-item">${o.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>`).join("");
+    }
+    listEl.classList.add("open");
+  }
+  inputEl.addEventListener("focus", ()=> render(inputEl.value));
+  inputEl.addEventListener("input", ()=> render(inputEl.value));
+  listEl.addEventListener("click", (ev)=>{
+    const item = ev.target.closest(".combo-item");
+    if(!item) return;
+    inputEl.value = item.textContent;
+    listEl.classList.remove("open");
+  });
+  document.addEventListener("click", (ev)=>{
+    if(ev.target !== inputEl && !listEl.contains(ev.target)){
+      listEl.classList.remove("open");
+    }
+  });
+  inputEl.addEventListener("blur", ()=>{
+    setTimeout(()=> listEl.classList.remove("open"), 150);
+  });
+}
+makeCombo(document.getElementById("f_equipo"), document.getElementById("cl_equipo"), LISTAS.EQUIPO);
+makeCombo(document.getElementById("f_actividad"), document.getElementById("cl_actividad"), LISTAS.ACTIVIDAD);
+makeCombo(document.getElementById("f_recom"), document.getElementById("cl_recom"), LISTAS.RECOM);
+
+/* ===================== Segmentos (botones tipo toggle) ===================== */
+function wireSeg(segId, defaultVal){
+  const seg = document.getElementById(segId);
+  seg.dataset.value = defaultVal || "";
+  seg.querySelectorAll("button").forEach(btn=>{
+    if(btn.dataset.v === defaultVal) btn.classList.add("sel");
+    btn.addEventListener("click", ()=>{
+      seg.querySelectorAll("button").forEach(b=>b.classList.remove("sel"));
+      btn.classList.add("sel");
+      seg.dataset.value = btn.dataset.v;
+    });
+  });
+}
+wireSeg("seg_desc","NO APLICA");
+wireSeg("seg_op","OPERATIVO");
+
+/* ===================== Tabs ===================== */
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll("main section").forEach(s=>s.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
+    document.getElementById("saveBar").style.display = (btn.dataset.tab==="nuevo") ? "block" : "none";
+    if(btn.dataset.tab==="lista") renderLista();
+    if(btn.dataset.tab==="exportar") renderExportCount();
+  });
+});
+
+/* ===================== Fecha / mes ===================== */
+const f_fecha = document.getElementById("f_fecha");
+const f_mes = document.getElementById("f_mes");
+f_fecha.value = todayISO();
+f_mes.value = isoToMesEs(f_fecha.value);
+f_fecha.addEventListener("change", ()=>{ f_mes.value = isoToMesEs(f_fecha.value); });
+
+document.getElementById("todayLabel").textContent = isoToDisplay(todayISO());
+
+/* ===================== Guardar ===================== */
+function clearFormSoft(){
+  document.getElementById("f_actividad").value = "";
+  document.getElementById("f_serie").value = "";
+  document.getElementById("f_status").value = "";
+  document.getElementById("f_comentarios").value = "";
+  document.getElementById("f_recom").value = "";
+  wireSeg("seg_desc","NO APLICA");
+  wireSeg("seg_op","OPERATIVO");
+}
+function clearFormFull(){
+  clearFormSoft();
+  document.getElementById("f_asesor").value = "";
+  document.getElementById("f_equipo").value = "";
+  f_fecha.value = todayISO();
+  f_mes.value = isoToMesEs(f_fecha.value);
+}
+
+document.getElementById("btnLimpiar").addEventListener("click", clearFormFull);
+
+document.getElementById("btnGuardar").addEventListener("click", async ()=>{
+  const fecha = f_fecha.value;
+  const asesor = document.getElementById("f_asesor").value;
+  const equipo = document.getElementById("f_equipo").value.trim();
+  const actividad = document.getElementById("f_actividad").value.trim();
+
+  if(!fecha || !asesor || !equipo || !actividad){
+    showToast("Completa fecha, asesor, equipo y actividad");
+    return;
+  }
+
+  const entry = {
+    fecha, mes: isoToMesEs(fecha),
+    asesor, equipo, actividad,
+    descripcion: document.getElementById("seg_desc").dataset.value || "NO APLICA",
+    operativo: document.getElementById("seg_op").dataset.value || "",
+    serie: document.getElementById("f_serie").value.trim(),
+    status: document.getElementById("f_status").value,
+    comentarios: document.getElementById("f_comentarios").value.trim(),
+    recomendaciones: document.getElementById("f_recom").value.trim(),
+    registradoPor: asesor
+  };
+
+  const btn = document.getElementById("btnGuardar");
+  btn.disabled = true; btn.textContent = "Guardando...";
+  try{
+    await gs("guardarRegistro", entry);
+    showToast("Registro guardado en la planilla compartida");
+    clearFormSoft();
+  }catch(err){
+    showToast("No se pudo guardar. Revisa tu conexión e intenta de nuevo.");
+    console.error(err);
+  }finally{
+    btn.disabled = false; btn.textContent = "Guardar registro";
+  }
+});
+
+/* ===================== Lista ===================== */
+const filtroFecha = document.getElementById("filtroFecha");
+filtroFecha.value = todayISO();
+filtroFecha.addEventListener("change", renderLista);
+
+async function renderLista(){
+  const wrap = document.getElementById("listaEntries");
+  wrap.innerHTML = `<div class="empty">Cargando registros del equipo...</div>`;
+  let list = [];
+  try{
+    list = await gs("listarRegistros", filtroFecha.value);
+  }catch(err){
+    wrap.innerHTML = `<div class="empty">No se pudo cargar. Revisa tu conexión y vuelve a intentar.</div>`;
+    return;
+  }
+  document.getElementById("countChip").textContent = list.length;
+
+  if(list.length === 0){
+    wrap.innerHTML = `<div class="empty"><div class="big">📋</div>Sin registros para esta fecha.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = list.map(e=>{
+    const opClass = "op-"+slug(e.operativo);
+    const statusClass = "status-"+slug(e.status);
+    return `
+    <div class="entry ${opClass}" data-row="${e.rowIndex}">
+      <div class="top">
+        <div>
+          <div class="eq">${escapeHtml(e.equipo)}</div>
+          <div class="act">${escapeHtml(e.actividad)}</div>
+        </div>
+      </div>
+      <div class="meta">
+        <span class="pill">${escapeHtml(e.asesor)}</span>
+        ${e.descripcion && e.descripcion!=="NO APLICA" ? `<span class="pill">${escapeHtml(e.descripcion)}</span>` : ""}
+        ${e.operativo ? `<span class="pill">${escapeHtml(e.operativo)}</span>` : ""}
+        ${e.serie ? `<span class="pill">N° ${escapeHtml(e.serie)}</span>` : ""}
+        ${e.status ? `<span class="pill ${statusClass}">${escapeHtml(e.status)}</span>` : ""}
+      </div>
+      ${e.comentarios ? `<div class="comments">${escapeHtml(e.comentarios)}</div>` : ""}
+      ${e.recomendaciones ? `<div class="recom">⚠ ${escapeHtml(e.recomendaciones)}</div>` : ""}
+      <div class="meta" style="margin-top:6px;">${e.registradoPor ? `<span class="pill">Cargó: ${escapeHtml(e.registradoPor)}</span>`:""}${e.registradoEn ? `<span class="pill">${escapeHtml(e.registradoEn)}</span>`:""}</div>
+      <div class="actions">
+        <button class="dup" data-row="${e.rowIndex}">Duplicar</button>
+        <button class="del" data-row="${e.rowIndex}">Eliminar</button>
+      </div>
+    </div>`;
+  }).join("");
+
+  wrap.querySelectorAll(".del").forEach(b=>b.addEventListener("click", onDelete));
+  wrap.querySelectorAll(".dup").forEach(b=>b.addEventListener("click", ()=>onDuplicate(list, b.dataset.row)));
+}
+
+function escapeHtml(s){
+  return (s||"").toString()
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+async function onDelete(ev){
+  const rowIndex = ev.currentTarget.dataset.row;
+  if(!confirm("¿Eliminar este registro para todo el equipo?")) return;
+  try{
+    await gs("eliminarRegistro", Number(rowIndex));
+    showToast("Registro eliminado");
+    renderLista();
+  }catch(err){
+    showToast("No se pudo eliminar. Intenta de nuevo.");
+  }
+}
+
+function onDuplicate(list, rowIndex){
+  const e = list.find(x=>String(x.rowIndex)===String(rowIndex));
+  if(!e) return;
+  document.querySelector('.tab-btn[data-tab="nuevo"]').click();
+  f_fecha.value = e.fecha; f_mes.value = e.mes;
+  document.getElementById("f_asesor").value = e.asesor;
+  document.getElementById("f_equipo").value = e.equipo;
+  document.getElementById("f_actividad").value = e.actividad;
+  document.getElementById("f_serie").value = e.serie;
+  document.getElementById("f_status").value = e.status;
+  document.getElementById("f_comentarios").value = e.comentarios;
+  document.getElementById("f_recom").value = e.recomendaciones;
+  wireSeg("seg_desc", e.descripcion || "NO APLICA");
+  wireSeg("seg_op", e.operativo || "OPERATIVO");
+  showToast("Datos copiados al formulario, revisa y guarda");
+}
+
+/* ===================== Exportar ===================== */
+const exp_desde = document.getElementById("exp_desde");
+const exp_hasta = document.getElementById("exp_hasta");
+exp_desde.value = todayISO();
+exp_hasta.value = todayISO();
+exp_desde.addEventListener("change", renderExportCount);
+exp_hasta.addEventListener("change", renderExportCount);
+
+async function entriesInRange(){
+  return await apiGet("exportar", { desde: exp_desde.value, hasta: exp_hasta.value });
+}
+
+async function renderExportCount(){
+  if(!getApiUrl()) return;
+  try{
+    const rows = await entriesInRange();
+    document.getElementById("exp_count").textContent = `${rows.length} registro${rows.length===1?"":"s"} en el rango.`;
+  }catch(err){
+    document.getElementById("exp_count").textContent = "No se pudo consultar el rango.";
+  }
+}
+if(getApiUrl()) renderExportCount();
+
+function toDisplayRows(rows){
+  // rows vienen del backend en el mismo orden: fecha,mes,asesor,equipo,actividad,descripcion,operativo,serie,status,comentarios,recomendaciones
+  return rows.map(r => [isoToDisplay(r[0]), ...r.slice(1)]);
+}
+
+function buildXlsxBlob(rows){
+  const header = ["FECHA","MES","ASESOR","EQUIPO","ACTIVIDAD","DESCRIPCIÓN","OPERATIVO","N° SERIE","STATUS ACTIVIDAD","COMENTARIOS","RECOMENDACIONES"];
+  const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+  ws["!cols"] = [10,10,18,14,26,12,16,16,16,30,22].map(w=>({wch:w}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "ACTIVIDADES PERIODO");
+  const wbout = XLSX.write(wb, {bookType:"xlsx", type:"array"});
+  return new Blob([wbout], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+}
+
+document.getElementById("btnWhatsapp").addEventListener("click", async ()=>{
+  if(typeof XLSX === "undefined"){
+    showToast("Sin conexión para generar el Excel. Intenta con datos móviles/wifi activos.");
+    return;
+  }
+  const rawRows = await entriesInRange();
+  if(rawRows.length===0){ showToast("No hay registros en ese rango"); return; }
+  const rows = toDisplayRows(rawRows);
+
+  const fileName = `actividades_${exp_desde.value}_a_${exp_hasta.value}.xlsx`;
+  const blob = buildXlsxBlob(rows);
+  const file = new File([blob], fileName, {type: blob.type});
+
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({
+        files: [file],
+        title: "Registro de actividades",
+        text: `Actividades ${isoToDisplay(exp_desde.value)} a ${isoToDisplay(exp_hasta.value)}`
+      });
+      return;
+    }catch(err){
+      if(err && err.name === "AbortError") return;
+    }
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("Tu navegador no permite compartir directo: se descargó el Excel para adjuntarlo tú mismo en WhatsApp");
+});
+
+document.getElementById("btnCopiar").addEventListener("click", async ()=>{
+  const rawRows = await entriesInRange();
+  if(rawRows.length===0){ showToast("No hay registros en ese rango"); return; }
+  const rows = toDisplayRows(rawRows);
+  const tsv = rows.map(r => r.map(v => (v||"").toString().replace(/\t/g," ").replace(/\n/g," ")).join("\t")).join("\n");
+  try{
+    await navigator.clipboard.writeText(tsv);
+    showToast(rows.length+" fila(s) copiadas — pégalas en Excel");
+  }catch(e){
+    const ta = document.createElement("textarea");
+    ta.value = tsv; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); document.body.removeChild(ta);
+    showToast(rows.length+" fila(s) copiadas — pégalas en Excel");
+  }
+});
+
+document.getElementById("btnCSV").addEventListener("click", async ()=>{
+  const rawRows = await entriesInRange();
+  if(rawRows.length===0){ showToast("No hay registros en ese rango"); return; }
+  const rows = toDisplayRows(rawRows);
+  const header = ["FECHA","MES","ASESOR","EQUIPO","ACTIVIDAD","DESCRIPCIÓN","OPERATIVO","N° SERIE","STATUS ACTIVIDAD","COMENTARIOS","RECOMENDACIONES"];
+  const csvRows = [header, ...rows].map(r =>
+    r.map(v=>{
+      const s = (v||"").toString().replace(/"/g,'""');
+      return /[",\n]/.test(s) ? `"${s}"` : s;
+    }).join(";")
+  );
+  const csv = "\uFEFF" + csvRows.join("\r\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `actividades_${exp_desde.value}_a_${exp_hasta.value}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("CSV descargado");
+});
+
+document.getElementById("btnAbrirSheet").addEventListener("click", async ()=>{
+  try{
+    const url = await gs("getSheetUrl");
+    window.open(url, "_blank");
+  }catch(err){
+    showToast("No se pudo abrir la planilla. Intenta de nuevo.");
+  }
+});
+
+/* Init */
+if(!getApiUrl()){
+  openConfig();
+}else{
+  renderLista();
+}
+</script>
+</body>
+</html>
